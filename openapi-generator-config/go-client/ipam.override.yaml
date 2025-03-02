@@ -1,0 +1,3 @@
+operationIdNameMappings:
+  globalRead2: ReadById
+  globalUpdate2: UpdateById

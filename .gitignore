@@ -1,0 +1,20 @@
+# Goland
+.idea
+
+# Vim
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+*.un~
+Session.vim
+.netrwhist
+*~
+pyvenv.cfg
+
+# Skip all fetched OpenAPI schemas
+/b1ddi-*-schema*.json
+.schemas/
+
+# Open API generator files
+.openapi-generator
+
+/generated/

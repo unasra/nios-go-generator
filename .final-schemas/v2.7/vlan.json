@@ -1,0 +1,26 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "Sample WAPI Documentation",
+    "version": "v2.7",
+    "title": "Infoblox WAPI",
+    "license": {
+      "name": "Infoblox License",
+      "url": "https://www.infoblox.com/"
+    },
+    "contact": {
+      "name": "Krishna",
+      "email": "kvasudevan@infoblox.com"
+    }
+  },
+  "paths": {},
+  "components": {
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic"
+      }
+    },
+    "schemas": {}
+  }
+}

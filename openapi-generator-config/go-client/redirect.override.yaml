@@ -1,0 +1,4 @@
+modelNameMappings:
+  # These mappings are added because the model names conflict with the 'redirect' prefixed model names.
+  redirect_pageUpdateRedirectPage_400_response_error: redirect_page_update_redirect_page_400_response_error
+  redirect_pageUpdateRedirectPage_400_response: redirect_page_update_redirect_page_400_response

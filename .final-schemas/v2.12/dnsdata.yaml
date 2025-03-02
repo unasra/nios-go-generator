@@ -1,0 +1,389 @@
+openapi: 3.1.1
+info:
+  title: IbClient
+  description: OpenAPI 3.x.x specification for the IbClient API
+  version: 3.0.0
+  termsOfService: 'https://www.infoblox.com'
+  summary: Infoblox API
+  contact:
+    name: Infoblox
+    url: 'https://www.infoblox.com'
+    email: 'jkhatri@infoblox.com'
+  license:
+    name: Apache 2.0
+    url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+  - url: 'https://{nios_host}'
+    description: Development server
+    variables:
+      nios_host:
+        default: '172.28.82.7'
+        enum:
+          - '172.28.82.7'
+          - '172.28.82.147'
+        description: Infoblox NIOS server IP address
+security:
+  - bearerAuth: []
+tags:
+  - name: recordA
+    description: Operations about ** record:a ** objects
+paths:
+  /wapi/v2.12.3/record:a:
+    get:
+      summary: List all A records
+      operationId: listARecords
+      tags:
+        - recordA
+      parameters:
+        - $ref: '#/components/parameters/ReturnFields'
+        - $ref: '#/components/parameters/ReturnFieldsPlus'
+        - $ref: '#/components/parameters/MaxResults'
+        - $ref: '#/components/parameters/ReturnAsObject'
+        - $ref: '#/components/parameters/Paging'
+        - $ref: '#/components/parameters/PageId'
+        - $ref: '#/components/parameters/Comment'
+        - $ref: '#/components/parameters/Creator'
+        - $ref: '#/components/parameters/DdnsPrincipal'
+        - $ref: '#/components/parameters/Ipv4Addr'
+        - $ref: '#/components/parameters/Name'
+        - $ref: '#/components/parameters/Reclaimable'
+        - $ref: '#/components/parameters/View'
+        - $ref: '#/components/parameters/Zone'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordA'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - record:a
+      parameters:
+        - $ref: '#/components/parameters/ReturnFields'
+      requestBody:
+        description: Enter the request body here
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecordARequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordA'
+      security:
+        - basicAuth: [ ]
+  /wapi/v2.12.3/record:a/{record:a_reference}:
+    get:
+      tags:
+        - record:a
+      parameters:
+        - $ref: '#/components/parameters/RecordAReference'
+        - $ref: '#/components/parameters/ReturnFields'
+        - $ref: '#/components/parameters/ReturnFieldsPlus'
+        - $ref: '#/components/parameters/ReturnAsObject'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordA'
+      security:
+        - basicAuth: [ ]
+    put:
+      description: Update the record:a resource
+      tags:
+        - record:a
+      parameters:
+        - $ref: '#/components/parameters/RecordAReference'
+        - $ref: '#/components/parameters/ReturnFields'
+      requestBody:
+        description: Enter the request body here
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecordARequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordA'
+      security:
+        - basicAuth: [ ]
+    delete:
+      description: Delete the record:a resource
+      tags:
+        - record:a
+      parameters:
+        - $ref: '#/components/parameters/RecordAReference'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reference:
+                    type: string
+                    description: Reference of the deleted record:a
+      security:
+        - basicAuth: [ ]
+
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+
+  parameters:
+    ReturnFields:
+      name: _return_fields
+      in: query
+      description: Enter the field names followed by comma
+      required: false
+      schema:
+        type: string
+    ReturnFieldsPlus:
+      name: _return_fields+
+      in: query
+      description: Enter the field names followed by comma, this returns the required fields along with the default fields
+      required: false
+      schema:
+        type: string
+    MaxResults:
+      name: _max_results
+      in: query
+      description: Enter the number of results to be fetched
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+    ReturnAsObject:
+      name: _return_as_object
+      in: query
+      description: Select 1 if result is required as an object
+      required: false
+      schema:
+        type: integer
+        enum:
+          - 0
+          - 1
+        default: 0
+    Paging:
+      name: _paging
+      in: query
+      description: Select 1 if paging is required. If SET, _max_results and _return_as_object must be entered.
+      required: false
+      schema:
+        type: integer
+        enum:
+          - 0
+          - 1
+        default: 0
+    PageId:
+      name: _page_id
+      in: query
+      description: Enter the page ID for fetching the next page
+      required: false
+      schema:
+        type: string
+    Comment:
+      name: comment
+      in: query
+      description: Enter the value of the field
+      required: false
+      schema:
+        type: string
+    Creator:
+      name: creator
+      in: query
+      description: Enter the value of the field
+      required: false
+      schema:
+        type: string
+    DdnsPrincipal:
+      name: ddns_principal
+      in: query
+      description: Enter the value of the field
+      required: false
+      schema:
+        type: string
+    Ipv4Addr:
+      name: ipv4addr
+      in: query
+      description: Enter the value of the field
+      required: false
+      schema:
+        type: string
+    Name:
+      name: name
+      in: query
+      description: Enter the value of the field
+      required: false
+      schema:
+        type: string
+    Reclaimable:
+      name: reclaimable
+      in: query
+      description: Enter the value of the field
+      required: false
+      schema:
+        type: string
+    View:
+      name: view
+      in: query
+      description: Enter the value of the field
+      required: false
+      schema:
+        type: string
+    Zone:
+      name: zone
+      in: query
+      description: Enter the value of the field
+      required: false
+      schema:
+        type: string
+    RecordAReference:
+      name: record:a_reference
+      in: path
+      required: true
+      description: Enter the reference for record:a
+      schema:
+        type: string
+        example: resourceID:resourceName
+
+  schemas:
+    RecordA:
+      type: object
+      properties:
+        aws_rte53_record_info:
+          type: string
+          enum:
+            - awsrte53recordinfo
+          description: Aws Route 53 record information.
+        cloud_info:
+          type: string
+          enum:
+            - grid:cloudapi:info
+          description: Structure containing all cloud API related information for this object.
+        comment:
+          type: string
+          description: Comment for the record; maximum 256 characters.
+        creation_time:
+          type: string
+          enum:
+            - timestamp
+          description: The time of the record creation in Epoch seconds format.
+        creator:
+          type: string
+          enum:
+            - STATIC
+            - DYNAMIC
+            - SYSTEM
+          description: The record creator.
+        ddns_principal:
+          type: string
+          description: The GSS-TSIG principal that owns this record.
+        ddns_protected:
+          type: boolean
+          description: Determines if the DDNS updates for this record are allowed or not.
+        disable:
+          type: boolean
+          description: Determines if the record is disabled or not. False means that the record is enabled.
+        discovered_data:
+          type: string
+          enum:
+            - discoverydata
+          description: The discovered data for this A record.
+        dns_name:
+          type: string
+          description: The name for an A record in punycode format.
+        extattrs:
+          type: string
+          enum:
+            - extattr
+          description: Extensible attributes associated with the object.
+        forbid_reclamation:
+          type: boolean
+          description: Determines if the reclamation is allowed for the record or not.
+        ipv4addr:
+          type: string
+          description: The IPv4 Address of the record.
+        last_queried:
+          type: string
+          enum:
+            - timestamp
+          description: The time of the last DNS query in Epoch seconds format.
+        ms_ad_user_data:
+          type: string
+          enum:
+            - msserver:aduser:data
+          description: The Microsoft Active Directory user related information.
+        name:
+          type: string
+          description: Name for A record in FQDN format.
+        reclaimable:
+          type: boolean
+          description: Determines if the record is reclaimable or not.
+        remove_associated_ptr:
+          type: boolean
+          description: Whether to remove associated PTR records while deleting the A record.
+        shared_record_group:
+          type: string
+          description: The shared record group this record belongs to.
+        ttl:
+          type: integer
+          description: Time-to-live value of the record, in seconds.
+        use_ttl:
+          type: boolean
+          description: Flag to indicate whether the TTL value should be used for the A record.
+        view:
+          type: string
+          description: View that this record is part of.
+        zone:
+          type: string
+          description: The zone in which the record resides.
+
+    RecordARequest:
+      type: object
+      properties:
+        comment:
+          type: string
+        creator:
+          type: string
+          enum:
+            - STATIC
+            - DYNAMIC
+            - SYSTEM
+        ddns_principal:
+          type: string
+        ddns_protected:
+          type: boolean
+        disable:
+          type: boolean
+        extattrs:
+          type: string
+        forbid_reclamation:
+          type: boolean
+        ipv4addr:
+          type: string
+        name:
+          type: string
+        ttl:
+          type: integer
+        use_ttl:
+          type: boolean
+        view:
+          type: string

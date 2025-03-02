@@ -1,0 +1,119 @@
+name: Check OpenAPI Schema Changes
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *' # Runs every day at 00:00
+  push:
+    branches:
+      - master
+    paths:
+      - '.final-schemas/**'
+
+jobs:
+  check-drift:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        schema: [
+          { file: 'ipam', url: 'https://csp.infoblox.com/apidoc/docs/Ipamsvc' },
+          { file: 'dns-config', url: 'https://csp.infoblox.com/apidoc/docs/DnsConfig' },
+          { file: 'dns-data', url: 'https://csp.infoblox.com/apidoc/docs/DnsData'},
+          { file: 'keys', url: 'https://csp.infoblox.com/apidoc/docs/DDIKeys'},
+          { file: 'dfp', url: 'https://csp.infoblox.com/apidoc/docs/Atcdfp'},
+          { file: 'anycast', url: 'https://csp.infoblox.com/apidoc/docs/Anycast'},
+          { file: 'fw', url: 'https://csp.infoblox.com/apidoc/docs/Atcfw'},
+          { file: 'infra-provision', url: 'https://csp.infoblox.com/apidoc/docs/HostActivation'},
+          { file: 'infra-mgmt', url: 'https://csp.infoblox.com/apidoc/docs/Infrastructure'},
+          { file: 'cloud-discovery', url: 'https://csp.infoblox.com/apidoc/docs/CloudDiscoveryProviders'},
+          { file: 'ipam-federation', url: 'https://csp.infoblox.com/apidoc/docs/IpamFederation'},
+
+
+          # Add more schemas here
+        ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+        # Calculate the difference between the base schema and the schema from the URL using the oasdiff-action
+      - name: Calculate OpenAPI difference
+        id : oasdiff
+        uses: oasdiff/oasdiff-action/diff@main
+        with:
+          base: '.final-schemas/${{ matrix.schema.file }}.json'
+          revision: '${{ matrix.schema.url }}'
+          exclude-elements: 'description,examples,extensions'
+          format: 'text'
+
+        # Read the diff output from the previous step and if it starts with "No endpoint changes", then there is no change
+        # Emit an output variable to be used in the next steps
+      - name: Check diff output
+        id: check_diff
+        uses: actions/github-script@v7
+        with :
+          script: | 
+            oasdiff_outputs = ${{ toJson(steps.oasdiff.outputs) }};
+            if (oasdiff_outputs.diff.length == 0 || oasdiff_outputs.diff.startsWith('No endpoint changes')) {
+              return null;
+            }
+            return 1;
+
+        # Search for an existing issue with the label 'workflow/schema-check' and the schema file name
+      - name: Search for existing issue
+        id: search
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: ['workflow/schema-check', '${{ matrix.schema.file }}']
+            });
+            if (issues.data.length > 0) {
+              return issues.data[0].number;
+            }
+            return null;
+
+        # If there is a diff and an existing issue, update the issue with the diff
+      - name: Update existing issue
+        if: ${{ (steps.check_diff.outputs.result != 'null') && (steps.search.outputs.result != 'null') }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            oasdiff_outputs = ${{ toJson(steps.oasdiff.outputs) }};
+            github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ steps.search.outputs.result }},
+              body:  oasdiff_outputs.diff
+            });
+
+        # If there is a diff and no existing issue, create a new issue with the diff
+      - name: Create new issue
+        if: ${{ (steps.check_diff.outputs.result != 'null') && (steps.search.outputs.result == 'null') }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            oasdiff_outputs = ${{ toJson(steps.oasdiff.outputs) }};
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '[${{ matrix.schema.file }}] OpenAPI Schema Changes Detected',
+              body:  oasdiff_outputs.diff,
+              labels: ['workflow/schema-check', '${{ matrix.schema.file }}']
+            });
+
+        # If there is no diff and an existing issue, close the issue
+      - name: Close existing issue
+        if:  ${{ (steps.check_diff.outputs.result == 'null') && (steps.search.outputs.result != 'null') }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ steps.search.outputs.result }},
+              state: 'closed'
+            });

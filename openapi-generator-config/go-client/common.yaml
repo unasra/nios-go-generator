@@ -1,0 +1,8 @@
+additionalProperties:
+  enumClassPrefix: true
+  generateInterfaces: true
+  structPrefix: true
+  isGoSubmodule: true
+  enablePostProcessFile: true
+  disallowAdditionalPropertiesIfNotPresent: false
+templateDir: templates/openapi/go-client
