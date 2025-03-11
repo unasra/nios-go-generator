@@ -1,0 +1,16 @@
+additionalProperties:
+  enumClassPrefix: true
+templateDir: templates/openapi/terraform
+files:
+  resource.mustache:
+    templateType: API
+    destinationFilename: _resource.go
+  data_source.mustache:
+    templateType: API
+    destinationFilename: _data_source.go
+  resource_acc_test.mustache:
+    templateType: API
+    destinationFilename: _resource_test.go
+  data_source_acc_test.mustache:
+    templateType: API
+    destinationFilename: _data_source_test.go

@@ -20711,7 +20711,7 @@
                     "example": "string"
                   },
                   "networks": {
-                    "type": "string",
+                    "type": "object",
                     "example": "network"
                   },
                   "nextserver": {

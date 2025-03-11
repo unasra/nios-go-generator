@@ -1,0 +1,168 @@
+{{#operations}}{{#operation}}{{#vendorExtensions.x-tf-resource}}
+package {{packageName}}
+
+import (
+	"context"
+	"fmt"
+    "net/http"
+
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+
+    bloxoneclient "github.com/unasra/nios-go-client/client"
+    "github.com/unasra/nios-go-client/{{packageName}}"
+    "github.com/unasra/terraform-provider-nios/internal/flex"
+    "github.com/unasra/terraform-provider-nios/internal/utils"
+)
+
+// Ensure provider defined types fully satisfy framework interfaces.
+var _ resource.Resource = &{{baseName}}Resource{}
+var _ resource.ResourceWithImportState = &{{baseName}}Resource{}
+
+func New{{baseName}}Resource() resource.Resource {
+	return &{{baseName}}Resource{}
+}
+
+// {{baseName}}Resource defines the resource implementation.
+type {{baseName}}Resource struct {
+	client *bloxoneclient.APIClient
+}
+
+func (r *{{baseName}}Resource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_" + "{{vendorExtensions.x-tf-resource}}"
+}
+
+{{>resource_schema}}
+
+func (r *{{baseName}}Resource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+	// Prevent panic if the provider has not been configured.
+	if req.ProviderData == nil {
+		return
+	}
+
+	client, ok := req.ProviderData.(*bloxoneclient.APIClient)
+
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected Resource Configure Type",
+			fmt.Sprintf("Expected *bloxoneclient.APIClient, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+
+		return
+	}
+
+	r.client = client
+}
+
+func (r *{{baseName}}Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data {{bodyParam.dataType}}Model
+
+	// Read Terraform plan data into the model
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	apiRes, _, err := r.client.{{clientAPI}}.
+		{{baseName}}API.
+		Create(ctx).
+		Body(*data.Expand(ctx,&resp.Diagnostics)).
+		Execute()
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create {{baseName}}, got error: %s", err))
+		return
+	}
+
+	res := apiRes.GetResult()
+	data.Flatten(ctx, &res, &resp.Diagnostics)
+
+	// Save data into Terraform state
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+}
+
+func (r *{{baseName}}Resource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data {{bodyParam.dataType}}Model
+
+	// Read Terraform prior state data into the model
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	apiRes, httpRes, err := r.client.{{clientAPI}}.
+		{{baseName}}API.
+		Read(ctx, data.Id.ValueString()).
+		Execute()
+	if err != nil {
+		if httpRes != nil && httpRes.StatusCode == http.StatusNotFound {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read {{baseName}}, got error: %s", err))
+		return
+	}
+
+	res := apiRes.GetResult()
+	data.Flatten(ctx, &res, &resp.Diagnostics)
+
+	// Save updated data into Terraform state
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+}
+
+func (r *{{baseName}}Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data {{bodyParam.dataType}}Model
+
+	// Read Terraform plan data into the model
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	apiRes, _, err := r.client.{{clientAPI}}.
+		{{baseName}}API.
+		Update(ctx, data.Id.ValueString()).
+		Body(*data.Expand(ctx,&resp.Diagnostics)).
+		Execute()
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update {{baseName}}, got error: %s", err))
+		return
+	}
+
+	res := apiRes.GetResult()
+	data.Flatten(ctx, &res, &resp.Diagnostics)
+
+	// Save updated data into Terraform state
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+}
+
+func (r *{{baseName}}Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data {{bodyParam.dataType}}Model
+
+	// Read Terraform prior state data into the model
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	httpRes, err := r.client.{{clientAPI}}.
+		{{baseName}}API.
+		Delete(ctx, data.Id.ValueString()).
+		Execute()
+	if err != nil {
+		if httpRes != nil && httpRes.StatusCode == http.StatusNotFound {
+			return
+		}
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete {{baseName}}, got error: %s", err))
+		return
+	}
+}
+
+func (r *{{baseName}}Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+{{/vendorExtensions.x-tf-resource}}{{/operation}}{{/operations}}

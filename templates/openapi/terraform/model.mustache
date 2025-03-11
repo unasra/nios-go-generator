@@ -1,0 +1,296 @@
+package {{packageName}}
+
+{{#models}}
+import (
+{{#imports}}
+	"{{import}}"
+{{/imports}}
+    "context"
+
+    "github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
+    schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+    "github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+    "github.com/hashicorp/terraform-plugin-framework/resource/schema/float64default"
+    "github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
+    "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+    "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+    "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+    "github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes"
+
+    "github.com/unasra/nios-go-client/{{packageName}}"
+
+    "github.com/unasra/terraform-provider-nios/internal/flex"
+    "github.com/unasra/terraform-provider-nios/internal/utils"
+)
+
+{{#model}}
+type {{classname}}Model struct {
+{{#vars}}
+    {{name}} {{#isArray}}types.List{{/isArray}}{{#isString}}types.String{{/isString}}{{#isByteArray}}types.String{{/isByteArray}}{{#isEnumRef}}types.String{{/isEnumRef}}{{#isBoolean}}types.Bool{{/isBoolean}}{{#isFloat}}types.Float64{{/isFloat}}{{#isInteger}}types.Int64{{/isInteger}}{{#isLong}}types.Int64{{/isLong}}{{#isModel}}types.Object{{/isModel}}{{#isFreeFormObject}}types.Map{{/isFreeFormObject}}{{#isDateTime}}timetypes.RFC3339{{/isDateTime}} `tfsdk:"{{baseName}}"`
+{{/vars}}
+}
+
+var {{classname}}AttrTypes = map[string]attr.Type{
+{{#vars}}
+    "{{baseName}}": {{#isArray}}types.ListType{ElemType:{{#items.isModel}}types.ObjectType{AttrTypes: {{items.dataType}}AttrTypes}{{/items.isModel}}{{#items.isString}}types.StringType{{/items.isString}} }{{/isArray}}{{#isString}}types.StringType{{/isString}}{{#isByteArray}}types.StringType{{/isByteArray}}{{#isEnumRef}}types.StringType{{/isEnumRef}}{{#isBoolean}}types.BoolType{{/isBoolean}}{{#isFloat}}types.Float64Type{{/isFloat}}{{#isInteger}}types.Int64Type{{/isInteger}}{{#isLong}}types.Int64Type{{/isLong}}{{#isModel}}types.ObjectType{AttrTypes: {{dataType}}AttrTypes}{{/isModel}}{{#isFreeFormObject}}types.MapType{ElemType: types.StringType}{{/isFreeFormObject}}{{#isDateTime}}timetypes.RFC3339Type{}{{/isDateTime}},
+{{/vars}}
+}
+
+var {{classname}}ResourceSchemaAttributes = map[string]schema.Attribute{
+{{#vars}}
+    "{{baseName}}": schema.{{#isModel}}SingleNestedAttribute{{/isModel}}{{#isArray}}{{#items.isModel}}ListNestedAttribute{{/items.isModel}}{{^items.isModel}}ListAttribute{{/items.isModel}}{{/isArray}}{{#isBoolean}}BoolAttribute{{/isBoolean}}{{#isInteger}}Int64Attribute{{/isInteger}}{{#isLong}}Int64Attribute{{/isLong}}{{#isFloat}}Float64Attribute{{/isFloat}}{{#isString}}StringAttribute{{/isString}}{{#isByteArray}}StringAttribute{{/isByteArray}}{{#isEnumRef}}StringAttribute{{/isEnumRef}}{{#isDateTime}}StringAttribute{{/isDateTime}}{{#isFreeFormObject}}MapAttribute{{/isFreeFormObject}}{
+    {{#isModel}}
+        Attributes: {{vendorExtensions.x-go-base-type}}ResourceSchemaAttributes,
+    {{/isModel}}
+    {{#isArray}}
+        {{#items.isModel}}
+        NestedObject: schema.NestedAttributeObject{
+            Attributes: {{items.baseType}}ResourceSchemaAttributes,
+        },
+        {{/items.isModel}}
+        {{^items.isModel}}
+        ElementType: {{#items.isString}}types.StringType{{/items.isString}},
+        {{/items.isModel}}
+    {{/isArray}}
+    {{#isFreeFormObject}}
+        ElementType: types.StringType,
+    {{/isFreeFormObject}}
+    {{#isDateTime}}
+        CustomType: timetypes.RFC3339Type{},
+    {{/isDateTime}}
+    {{#required}}
+        Required: true,
+    {{/required}}
+    {{#isReadOnly}}
+        Computed: true,
+    {{/isReadOnly}}
+    {{^isReadOnly}}
+        {{^required}}
+        Optional:true,
+        {{/required}}
+    {{/isReadOnly}}
+    {{#defaultValue}}
+        {{^isreadOnly}}
+        Computed:true,
+        {{/isreadOnly}}
+        {{#isBoolean}}
+        Default: booldefault.StaticBool({{{.}}}),
+        {{/isBoolean}}
+        {{#isInteger}}
+        Default: int64default.StaticInt64({{{.}}}),
+        {{/isInteger}}
+        {{#isLong}}
+        Default: int64default.StaticInt64({{{.}}}),
+        {{/isLong}}
+        {{#isFloat}}
+        Default: float64default.StaticFloat64({{{.}}}),
+        {{/isFloat}}
+        {{#isString}}
+        Default: stringdefault.StaticString({{{.}}}),
+        {{/isString}}
+        {{#isByteArray}}
+        Default: stringdefault.StaticString({{{.}}}),
+        {{/isByteArray}}
+        {{#isDateTime}}
+        Default: stringdefault.StaticString({{{.}}}),
+        {{/isDateTime}}
+        {{#isEnumRef}}
+        // Default: stringdefault.StaticString({{{.}}}), //TODO: fix this
+        {{/isEnumRef}}
+    {{/defaultValue}}
+    {{#description}}
+        MarkdownDescription: "{{{.}}}",
+    {{/description}}
+    {{#vendorExtensions.x-tf-plan-modifiers}}
+        PlanModifiers: []planmodifier.String{ {{#use-state-for-unknown}}
+            stringplanmodifier.UseStateForUnknown(),{{/use-state-for-unknown}}
+        },
+    {{/vendorExtensions.x-tf-plan-modifiers}}
+    },
+{{/vars}}
+}
+
+func Expand{{classname}}(ctx context.Context, o types.Object, diags * diag.Diagnostics) *{{packageName}}.{{classname}} {
+	if o.IsNull() || o.IsUnknown() {
+        return nil
+    }
+    var m {{classname}}Model
+	diags.Append(o.As(ctx, &m, basetypes.ObjectAsOptions{})...)
+	if diags.HasError() {
+		return nil
+	}
+	return m.Expand(ctx, diags)
+}
+
+func (m *{{classname}}Model) Expand(ctx context.Context, diags *diag.Diagnostics) *{{packageName}}.{{classname}}{
+    if m == nil {
+        return nil
+    }
+    to := &{{packageName}}.{{classname}}{
+        {{#vars}}
+            {{^isReadOnly}}
+                {{#isString}}
+        {{name}} : flex.ExpandString{{^required}}Pointer{{/required}}(m.{{name}}),
+                {{/isString}}
+                {{#isByteArray}}
+        {{name}} : flex.ExpandString{{^required}}Pointer{{/required}}(m.{{name}}),
+                {{/isByteArray}}
+                {{#isBoolean}}
+        {{name}} : flex.ExpandBool{{^required}}Pointer{{/required}}(m.{{name}}),
+                {{/isBoolean}}
+                {{#isFloat}}
+        {{name}} : flex.ExpandFloat64{{^required}}Pointer{{/required}}(m.{{name}}),
+                {{/isFloat}}
+                {{#isLong}}
+        {{name}} : flex.ExpandInt64{{^required}}Pointer{{/required}}(m.{{name}}),
+                {{/isLong}}
+                {{#isInteger}}
+        {{name}} : flex.ExpandInt64{{^required}}Pointer{{/required}}(m.{{name}}),
+                {{/isInteger}}
+                {{#isDateTime}}
+        {{name}} : flex.ExpandTime{{^required}}Pointer{{/required}}(ctx, m.{{name}}, diags),
+                {{/isDateTime}}
+                {{#isModel}}
+        {{name}}:{{#required}}*{{/required}}Expand{{dataType}}(ctx, m.{{name}}, diags),
+                {{/isModel}}
+                {{#isFreeFormObject}}
+        {{name}}: flex.ExpandFrameworkMapString(ctx, m.{{name}}, diags),
+                {{/isFreeFormObject}}
+                {{#isArray}}
+                    {{#items.isModel}}
+        {{name}}: flex.ExpandFrameworkListNestedBlock(ctx, m.{{name}}, diags, Expand{{items.dataType}}),
+                    {{/items.isModel}}
+                    {{#items.isString}}
+        {{name}}: flex.ExpandFrameworkListString(ctx, m.{{name}}, diags),
+                    {{/items.isString}}
+                {{/isArray}}
+            {{/isReadOnly}}
+        {{/vars}}
+        {{#vars}}
+            {{^isReadOnly}}
+                {{^isString}}
+                    {{^isByteArray}}
+                        {{^isBoolean}}
+                            {{^isFloat}}
+                                {{^isLong}}
+                                    {{^isInteger}}
+                                        {{^isDateTime}}
+                                            {{^isModel}}
+                                                {{^isFreeFormObject}}
+                                                    {{#isArray}}
+                                                        {{^items.isModel}}
+                                                            {{^items.isString}}
+        // {{name}} // TODO: should have been expanded, but generator didn't know how to.
+                                                            {{/items.isString}}
+                                                        {{/items.isModel}}
+                                                    {{/isArray}}
+                                                    {{^isArray}}
+        // {{name}} // TODO: should have been expanded, but generator didn't know how to.
+                                                    {{/isArray}}
+                                                {{/isFreeFormObject}}
+                                            {{/isModel}}
+                                        {{/isDateTime}}
+                                    {{/isInteger}}
+                                {{/isLong}}
+                            {{/isFloat}}
+                        {{/isBoolean}}
+                    {{/isByteArray}}
+                {{/isString}}
+            {{/isReadOnly}}
+        {{/vars}}
+    }
+    return to
+}
+
+func Flatten{{classname}}(ctx context.Context, from *{{packageName}}.{{classname}}, diags * diag.Diagnostics) types.Object {
+    if from == nil {
+        return types.ObjectNull({{classname}}AttrTypes)
+    }
+	m := {{classname}}Model{}
+	m.Flatten(ctx, from, diags)
+    t, d :=  types.ObjectValueFrom(ctx, {{classname}}AttrTypes, m)
+    diags.Append(d...)
+    return t
+}
+
+
+func (m *{{classname}}Model) Flatten(ctx context.Context, from *{{packageName}}.{{classname}}, diags *diag.Diagnostics) {
+    if from == nil {
+        return
+    }
+    if m == nil {
+        *m = {{classname}}Model{}
+    }
+{{#vars}}
+    {{#isString}}
+    m.{{name}} = flex.FlattenString{{^required}}Pointer{{/required}}(from.{{name}})
+    {{/isString}}
+    {{#isByteArray}}
+    m.{{name}} = flex.FlattenString{{^required}}Pointer{{/required}}(from.{{name}})
+    {{/isByteArray}}
+    {{#isBoolean}}
+    m.{{name}} = types.Bool{{^required}}Pointer{{/required}}Value(from.{{name}})
+    {{/isBoolean}}
+    {{#isFloat}}
+    m.{{name}} = flex.FlattenFloat64{{^required}}Pointer{{/required}}(from.{{name}})
+    {{/isFloat}}
+    {{#isLong}}
+    m.{{name}} = flex.FlattenInt64{{^required}}Pointer{{/required}}(from.{{name}})
+    {{/isLong}}
+    {{#isInteger}}
+    m.{{name}} = flex.FlattenInt64{{^required}}Pointer{{/required}}(from.{{name}})
+    {{/isInteger}}
+    {{#isDateTime}}
+    m.{{name}} = timetypes.NewRFC3339Time{{^required}}Pointer{{/required}}Value(from.{{name}})
+    {{/isDateTime}}
+    {{#isModel}}
+    m.{{name}} = Flatten{{dataType}}(ctx, {{#required}}&{{/required}}from.{{name}}, diags)
+    {{/isModel}}
+    {{#isFreeFormObject}}
+    m.{{name}} = flex.FlattenFrameworkMapString(ctx, from.{{name}}, diags)
+    {{/isFreeFormObject}}
+    {{#isArray}}
+        {{#items.isModel}}
+    m.{{name}} = flex.FlattenFrameworkListNestedBlock(ctx, from.{{name}},{{items.dataType}}AttrTypes, diags, Flatten{{items.dataType}})
+        {{/items.isModel}}
+        {{#items.isString}}
+    m.{{name}} = flex.FlattenFrameworkListString(ctx, from.{{name}}, diags)
+        {{/items.isString}}
+    {{/isArray}}
+{{/vars}}
+{{#vars}}
+    {{^isString}}
+        {{^isByteArray}}
+            {{^isBoolean}}
+                {{^isFloat}}
+                    {{^isLong}}
+                        {{^isInteger}}
+                            {{^isDateTime}}
+                                {{^isModel}}
+                                    {{^isFreeFormObject}}
+                                        {{#isArray}}
+                                            {{^items.isModel}}
+                                                {{^items.isString}}
+    // {{name}} // TODO: should have been flattened, but generator didn't know how to.
+                                                {{/items.isString}}
+                                            {{/items.isModel}}
+                                        {{/isArray}}
+                                        {{^isArray}}
+    // {{name}} // TODO: should have been flattened, but generator didn't know how to.
+                                        {{/isArray}}
+                                    {{/isFreeFormObject}}
+                                {{/isModel}}
+                            {{/isDateTime}}
+                        {{/isInteger}}
+                    {{/isLong}}
+                {{/isFloat}}
+            {{/isBoolean}}
+        {{/isByteArray}}
+    {{/isString}}
+{{/vars}}
+}
+{{/model}}
+{{/models}}

@@ -1,0 +1,91 @@
+{{#operations}}{{#operation}}{{#vendorExtensions.x-tf-datasource}}
+package {{packageName}}
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
+
+    bloxoneclient "github.com/unasra/nios-go-client/client"
+    "github.com/unasra/nios-go-client/{{packageName}}"
+    "github.com/unasra/terraform-provider-nios/internal/flex"
+    "github.com/unasra/terraform-provider-nios/internal/utils"
+)
+
+// Ensure provider defined types fully satisfy framework interfaces.
+var _ datasource.DataSource = &{{baseName}}DataSource{}
+
+func New{{baseName}}DataSource() datasource.DataSource {
+	return &{{baseName}}DataSource{}
+}
+
+// {{baseName}}DataSource defines the data source implementation.
+type {{baseName}}DataSource struct {
+	client *bloxoneclient.APIClient
+}
+
+func (d *{{baseName}}DataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_" + "{{vendorExtensions.x-tf-datasource}}"
+}
+
+{{>data_source_schema}}
+
+func (d *{{baseName}}DataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+	// Prevent panic if the provider has not been configured.
+	if req.ProviderData == nil {
+		return
+	}
+
+	client, ok := req.ProviderData.(*bloxoneclient.APIClient)
+
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected DataSource Configure Type",
+			fmt.Sprintf("Expected *bloxoneclient.APIClient, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+
+		return
+	}
+
+	d.client = client
+}
+
+func (d *{{baseName}}DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var data {{bodyParam.dataType}}ModelWithFilter
+
+	// Read Terraform prior state data into the model
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+    allResults, err := utils.ReadWithPages(func(offset, limit int32) ([]{{packageName}}.{{bodyParam.dataType}}, error) {
+        apiRes, _, err := d.client.{{clientAPI}}.
+            {{baseName}}API.
+            List(ctx).
+            Filter(flex.ExpandFrameworkMapFilterString(ctx, data.Filters, &resp.Diagnostics)).
+            Tfilter(flex.ExpandFrameworkMapFilterString(ctx, data.TagFilters, &resp.Diagnostics)).
+            Offset(offset).
+			Limit(limit).
+            Execute()
+        if err != nil {
+            resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read {{baseName}}, got error: %s", err))
+            return nil, err
+		}
+		return apiRes.GetResults(), nil
+    })
+    if err != nil {
+        return
+    }
+
+	data.FlattenResults(ctx, allResults, &resp.Diagnostics)
+
+	// Save updated data into Terraform state
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+}
+{{/vendorExtensions.x-tf-datasource}}{{/operation}}{{/operations}}

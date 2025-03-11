@@ -20,13 +20,18 @@
       "description": "Operations about ** record:a ** objects"
     }
   ],
+  "servers": [
+    {
+      "url": "https://10.0.0.0/wapi/v2.12.3",
+      "description": "Infoblox WAPI server"
+    }
+  ],
   "paths": {
     "/wapi/v2.12.3/record:a": {
       "get": {
         "summary": "List all A records",
-        "operationId": "listARecords",
         "tags": [
-          "recordA"
+          "record:a"
         ],
         "parameters": [
           {
@@ -78,7 +83,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RecordA"
+                  "$ref": "#/components/schemas/record_a"
                 }
               }
             }
@@ -92,9 +97,6 @@
         "parameters": [
           {
             "$ref": "#/components/parameters/ReturnFields"
-          },
-          {
-            "$ref": "#/components/parameters/ReturnFieldsPlus"
           }
         ],
         "requestBody": {
@@ -114,7 +116,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RecordA"
+                  "$ref": "#/components/schemas/record_a"
                 }
               }
             }
@@ -124,7 +126,9 @@
           {
             "basicAuth": []
           }
-        ]
+        ],
+        "x-tf-resource": "dns_a_record",
+        "x-tf-datasource": "dns_a_records"
       }
     },
     "/wapi/v2.12.3/record:a/{record:a_reference}": {
@@ -134,7 +138,7 @@
         ],
         "parameters": [
           {
-            "$ref": "#/components/parameters/RecordAReference"
+            "$ref": "#/components/parameters/_ref"
           },
           {
             "$ref": "#/components/parameters/ReturnFields"
@@ -152,7 +156,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RecordA"
+                  "$ref": "#/components/schemas/record_a"
                 }
               }
             }
@@ -171,7 +175,7 @@
         ],
         "parameters": [
           {
-            "$ref": "#/components/parameters/RecordAReference"
+            "$ref": "#/components/parameters/_ref"
           },
           {
             "$ref": "#/components/parameters/ReturnFields"
@@ -194,7 +198,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RecordA"
+                  "$ref": "#/components/schemas/record_a"
                 }
               }
             }
@@ -213,7 +217,7 @@
         ],
         "parameters": [
           {
-            "$ref": "#/components/parameters/RecordAReference"
+            "$ref": "#/components/parameters/_ref"
           }
         ],
         "responses": {
@@ -224,7 +228,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "reference": {
+                    "ref": {
                       "type": "string",
                       "description": "Reference of the deleted record:a"
                     }
@@ -387,7 +391,7 @@
           "type": "string"
         }
       },
-      "RecordAReference": {
+      "_ref": {
         "name": "record:a_reference",
         "in": "path",
         "required": true,
@@ -399,7 +403,7 @@
       }
     },
     "schemas": {
-      "RecordA": {
+      "record_a": {
         "type": "object",
         "properties": {
           "aws_rte53_record_info": {

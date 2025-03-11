@@ -1,0 +1,36 @@
+type {{bodyParam.dataType}}ModelWithFilter struct {
+	Filters    types.Map  `tfsdk:"filters"`
+	TagFilters types.Map  `tfsdk:"tag_filters"`
+	Results    types.List `tfsdk:"results"`
+}
+
+func (m *{{bodyParam.dataType}}ModelWithFilter) FlattenResults(ctx context.Context, from []{{packageName}}.{{bodyParam.dataType}}, diags *diag.Diagnostics) {
+    if len(from) == 0 {
+        return
+    }
+	m.Results = flex.FlattenFrameworkListNestedBlock(ctx, from, {{bodyParam.dataType}}AttrTypes, diags, Flatten{{bodyParam.dataType}})
+}
+
+func (d *{{baseName}}DataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = schema.Schema{
+        MarkdownDescription: "{{{description}}}",
+        Attributes: map[string]schema.Attribute{
+            "filters": schema.MapAttribute{
+                Description: "Filter are used to return a more specific list of results. Filters can be used to match resources by specific attributes, e.g. name. If you specify multiple filters, the results returned will have only resources that match all the specified filters.",
+                ElementType: types.StringType,
+                Optional:    true,
+            },
+            "tag_filters": schema.MapAttribute{
+                Description: "Tag Filters are used to return a more specific list of results filtered by tags. If you specify multiple filters, the results returned will have only resources that match all the specified filters.",
+                ElementType: types.StringType,
+                Optional:    true,
+            },
+            "results": schema.ListNestedAttribute{
+                NestedObject: schema.NestedAttributeObject{
+                    Attributes: utils.DataSourceAttributeMap({{bodyParam.dataType}}ResourceSchemaAttributes, &resp.Diagnostics),
+                },
+                Computed: true,
+            },
+        },
+    }
+}

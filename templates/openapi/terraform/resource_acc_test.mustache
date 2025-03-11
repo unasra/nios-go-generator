@@ -1,0 +1,185 @@
+{{#operations}}{{#operation}}{{#vendorExtensions.x-tf-resource}}
+package {{packageName}}_test
+
+import (
+	"context"
+	"fmt"
+    "net/http"
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
+	"github.com/unasra/nios-go-client/{{packageName}}"
+	"github.com/unasra/terraform-provider-nios/internal/acctest"
+)
+
+func TestAcc{{baseName}}Resource_basic(t *testing.T) {
+    var resourceName = "bloxone_{{vendorExtensions.x-tf-resource}}.test"
+    var v {{packageName}}.{{bodyParam.dataType}}
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.PreCheck(t) },
+		ProtoV6ProviderFactories: acctest.ProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// Create and Read
+			{
+				Config: testAcc{{baseName}}BasicConfig({{#bodyParam.requiredVars}}"{{nameInSnakeCase}}_REPLACE_ME"{{^-last}},{{/-last}}{{/bodyParam.requiredVars}}),
+				Check: resource.ComposeTestCheckFunc(
+                    testAccCheck{{baseName}}Exists(context.Background(), resourceName, &v),
+                    // TODO: check and validate these
+                    {{#bodyParam.requiredVars}}
+					resource.TestCheckResourceAttr(resourceName, "{{baseName}}", "{{nameInSnakeCase}}_REPLACE_ME"),
+                    {{/bodyParam.requiredVars}}
+                    // Test Read Only fields
+                    {{#bodyParam.vars}}
+                    {{#isReadOnly}}
+					resource.TestCheckResourceAttrSet(resourceName, "{{baseName}}"),
+                    {{/isReadOnly}}
+                    {{/bodyParam.vars}}
+                    // Test fields with default value
+                    {{#bodyParam.vars}}
+                    {{#defaultValue}}
+                        resource.TestCheckResourceAttr(resourceName, "{{baseName}}", {{^isString}}{{^isEnumRef}}"{{/isEnumRef}}{{/isString}}{{{defaultValue}}}{{^isString}}{{^isEnumRef}}"{{/isEnumRef}}{{/isString}}),
+                    {{/defaultValue}}
+                    {{/bodyParam.vars}}
+				),
+			},
+			// Delete testing automatically occurs in TestCase
+		},
+	})
+}
+
+func TestAcc{{baseName}}Resource_disappears(t *testing.T) {
+	resourceName := "bloxone_{{#operation}}{{vendorExtensions.x-tf-resource}}{{/operation}}.test"
+	var v {{packageName}}.{{bodyParam.dataType}}
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.PreCheck(t) },
+		ProtoV6ProviderFactories: acctest.ProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheck{{baseName}}Destroy(context.Background(), &v),
+		Steps: []resource.TestStep{
+			{
+				Config: testAcc{{baseName}}BasicConfig({{#bodyParam.requiredVars}}"{{nameInSnakeCase}}_REPLACE_ME"{{^-last}},{{/-last}}{{/bodyParam.requiredVars}}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheck{{baseName}}Exists(context.Background(), resourceName, &v),
+					testAccCheck{{baseName}}Disappears(context.Background(), &v),
+				),
+				ExpectNonEmptyPlan: true,
+			},
+		},
+	})
+}
+
+{{#bodyParam.vars}}{{^isReadOnly}}
+    func TestAcc{{#operation}}{{#vendorExtensions.x-tf-resource}}{{baseName}}{{/vendorExtensions.x-tf-resource}}{{/operation}}Resource_{{name}}(t *testing.T) {
+    var resourceName = "bloxone_{{#operation}}{{#vendorExtensions.x-tf-resource}}{{.}}{{/vendorExtensions.x-tf-resource}}{{/operation}}.test_{{baseName}}"
+    var v {{packageName}}.{{bodyParam.dataType}}
+
+    resource.ParallelTest(t, resource.TestCase{
+        PreCheck:                 func() { acctest.PreCheck(t) },
+        ProtoV6ProviderFactories: acctest.ProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// Create and Read
+			{
+				Config: testAcc{{#operation}}{{#vendorExtensions.x-tf-resource}}{{baseName}}{{/vendorExtensions.x-tf-resource}}{{/operation}}{{name}}({{#bodyParam.requiredVars}}"{{nameInSnakeCase}}_REPLACE_ME",{{/bodyParam.requiredVars}}{{^required}}"{{nameInSnakeCase}}_REPLACE_ME"{{/required}}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheck{{#operation}}{{#vendorExtensions.x-tf-resource}}{{baseName}}{{/vendorExtensions.x-tf-resource}}{{/operation}}Exists(context.Background(), resourceName, &v),
+					resource.TestCheckResourceAttr(resourceName, "{{baseName}}", "{{nameInSnakeCase}}_REPLACE_ME"),
+                ),
+            },
+            // Update and Read
+			{
+				Config: testAcc{{#operation}}{{#vendorExtensions.x-tf-resource}}{{baseName}}{{/vendorExtensions.x-tf-resource}}{{/operation}}{{name}}({{#bodyParam.requiredVars}}"{{nameInSnakeCase}}_REPLACE_ME",{{/bodyParam.requiredVars}}{{^required}}"{{nameInSnakeCase}}_UPDATE_REPLACE_ME"{{/required}}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheck{{#operation}}{{#vendorExtensions.x-tf-resource}}{{baseName}}{{/vendorExtensions.x-tf-resource}}{{/operation}}Exists(context.Background(), resourceName, &v),
+					resource.TestCheckResourceAttr(resourceName, "{{baseName}}", "{{nameInSnakeCase}}_UPDATE_REPLACE_ME"),
+                ),
+            },
+   			// Delete testing automatically occurs in TestCase
+        },
+    })
+}
+{{/isReadOnly}}{{/bodyParam.vars}}
+
+func testAccCheck{{baseName}}Exists(ctx context.Context, resourceName string, v *{{packageName}}.{{bodyParam.dataType}}) resource.TestCheckFunc {
+	// Verify the resource exists in the cloud
+	return func(state *terraform.State) error {
+		rs, ok := state.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("not found: %s", resourceName)
+		}
+		apiRes, _, err := acctest.BloxOneClient.{{clientAPI}}.
+            {{baseName}}API.
+            Read(ctx, rs.Primary.ID).
+            Execute()
+		if err != nil {
+			return err
+		}
+		if !apiRes.HasResult() {
+			return fmt.Errorf("expected result to be returned: %s", resourceName)
+		}
+        *v = apiRes.GetResult()
+		return nil
+	}
+}
+
+func testAccCheck{{baseName}}Destroy(ctx context.Context, v *{{packageName}}.{{bodyParam.dataType}}) resource.TestCheckFunc {
+	// Verify the resource was destroyed
+	return func(state *terraform.State) error {
+		_, httpRes, err := acctest.BloxOneClient.{{clientAPI}}.
+            {{baseName}}API.
+            Read(ctx, *v.Id).
+			Execute()
+		if err != nil {
+			if httpRes != nil && httpRes.StatusCode == http.StatusNotFound {
+				// resource was deleted
+				return nil
+			}
+			return err
+		}
+		return errors.New("expected to be deleted")
+	}
+}
+
+func testAccCheck{{baseName}}Disappears(ctx context.Context, v *{{packageName}}.{{bodyParam.dataType}}) resource.TestCheckFunc {
+	// Delete the resource externally to verify disappears test
+	return func(state *terraform.State) error {
+		_, err := acctest.BloxOneClient.{{clientAPI}}.
+            {{baseName}}API.
+            Delete(ctx, *v.Id).
+			Execute()
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+}
+
+func testAcc{{baseName}}BasicConfig({{#bodyParam.requiredVars}}{{nameInCamelCase}}{{^-last}},{{/-last}}{{/bodyParam.requiredVars}} string) string {
+    // TODO: create basic resource with required fields
+	return fmt.Sprintf(`
+resource "bloxone_{{vendorExtensions.x-tf-resource}}" "test" {
+    {{#bodyParam.requiredVars}}
+    {{baseName}} = %q
+    {{/bodyParam.requiredVars}}
+}
+`{{#bodyParam.requiredVars}},{{nameInCamelCase}}{{/bodyParam.requiredVars}})
+}
+
+{{#bodyParam.vars}}{{^isReadOnly}}
+func testAcc{{#operation}}{{#vendorExtensions.x-tf-resource}}{{baseName}}{{/vendorExtensions.x-tf-resource}}{{/operation}}{{name}}({{#bodyParam.requiredVars}}{{nameInCamelCase}} string,{{/bodyParam.requiredVars}}{{^required}}{{nameInCamelCase}} string{{/required}}) string {
+	return fmt.Sprintf(`
+resource "bloxone_{{#operation}}{{#vendorExtensions.x-tf-resource}}{{.}}{{/vendorExtensions.x-tf-resource}}{{/operation}}" "test_{{baseName}}" {
+    {{#bodyParam.requiredVars}}
+    {{baseName}} = %q
+    {{/bodyParam.requiredVars}}
+    {{^required}}
+    {{baseName}} = %q
+    {{/required}}
+}
+`{{#bodyParam.requiredVars}},{{nameInCamelCase}}{{/bodyParam.requiredVars}}{{^required}},{{nameInCamelCase}}{{/required}})
+}
+{{/isReadOnly}}{{/bodyParam.vars}}
+
+{{/vendorExtensions.x-tf-resource}}{{/operation}}{{/operations}}

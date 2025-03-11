@@ -1,0 +1,102 @@
+{{#operations}}{{#operation}}{{#vendorExtensions.x-tf-datasource}}
+package {{packageName}}_test
+
+import (
+	"context"
+	"fmt"
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+
+	"github.com/unasra/nios-go-client/{{packageName}}"
+	"github.com/unasra/terraform-provider-nios/internal/acctest"
+)
+
+func TestAcc{{baseName}}DataSource_Filters(t *testing.T) {
+	dataSourceName := "data.bloxone_{{vendorExtensions.x-tf-datasource}}.test"
+	resourceName := "bloxone_{{vendorExtensions.x-tf-resource}}.test"
+	var v {{packageName}}.{{bodyParam.dataType}}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acctest.PreCheck(t) },
+		ProtoV6ProviderFactories: acctest.ProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheck{{baseName}}Destroy(context.Background(), &v),
+		Steps: []resource.TestStep{
+			{
+				Config: testAcc{{baseName}}DataSourceConfigFilters({{#bodyParam.requiredVars}}"{{nameInSnakeCase}}_REPLACE_ME"{{^-last}},{{/-last}}{{/bodyParam.requiredVars}}),
+				Check: resource.ComposeTestCheckFunc(
+					append([]resource.TestCheckFunc{
+							testAccCheck{{baseName}}Exists(context.Background(), resourceName, &v),
+						}, testAccCheck{{baseName}}ResourceAttrPair(resourceName, dataSourceName)...)...,
+				),
+			},
+		},
+	})
+}
+
+func TestAcc{{baseName}}DataSource_TagFilters(t *testing.T) {
+	dataSourceName := "data.bloxone_{{vendorExtensions.x-tf-datasource}}.test"
+	resourceName := "bloxone_{{vendorExtensions.x-tf-resource}}.test"
+	var v {{packageName}}.{{bodyParam.dataType}}
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acctest.PreCheck(t) },
+		ProtoV6ProviderFactories: acctest.ProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheck{{baseName}}Destroy(context.Background(), &v),
+		Steps: []resource.TestStep{
+			{
+				Config: testAcc{{baseName}}DataSourceConfigTagFilters({{#bodyParam.requiredVars}}"{{nameInSnakeCase}}_REPLACE_ME"{{^-last}},{{/-last}}{{/bodyParam.requiredVars}}, "value1"),
+				Check: resource.ComposeTestCheckFunc(
+					append([]resource.TestCheckFunc{
+							testAccCheck{{baseName}}Exists(context.Background(), resourceName, &v),
+						}, testAccCheck{{baseName}}ResourceAttrPair(resourceName, dataSourceName)...)...,
+				),
+			},
+		},
+	})
+}
+
+// below all TestAcc functions
+
+func testAccCheck{{baseName}}ResourceAttrPair(resourceName, dataSourceName string) []resource.TestCheckFunc{
+    return []resource.TestCheckFunc{
+        {{#bodyParam.vars}}
+        resource.TestCheckResourceAttrPair(resourceName, "{{baseName}}", dataSourceName, "results.0.{{baseName}}"),
+        {{/bodyParam.vars}}
+    }
+}
+
+func testAcc{{baseName}}DataSourceConfigFilters({{#bodyParam.requiredVars}}{{nameInCamelCase}}{{^-last}},{{/-last}}{{#-last}} string{{/-last}}{{/bodyParam.requiredVars}}) string {
+	return fmt.Sprintf(`
+resource "bloxone_{{vendorExtensions.x-tf-resource}}" "test" {
+  {{#bodyParam.requiredVars}}
+  {{baseName}} = %q
+  {{/bodyParam.requiredVars}}
+}
+
+data "bloxone_{{vendorExtensions.x-tf-datasource}}" "test" {
+  filters = {
+	{{#bodyParam.requiredVars}}{{#-first}}{{baseName}}{{/-first}}{{/bodyParam.requiredVars}} = bloxone_{{vendorExtensions.x-tf-resource}}.test.{{#bodyParam.requiredVars}}{{#-first}}{{baseName}}{{/-first}}{{/bodyParam.requiredVars}}
+  }
+}
+`{{#bodyParam.requiredVars}},{{nameInCamelCase}}{{/bodyParam.requiredVars}})
+}
+
+func testAcc{{baseName}}DataSourceConfigTagFilters({{#bodyParam.requiredVars}}{{nameInCamelCase}}{{^-last}},{{/-last}}{{#-last}} string,{{/-last}}{{/bodyParam.requiredVars}}tagValue string) string {
+	return fmt.Sprintf(`
+resource "bloxone_{{vendorExtensions.x-tf-resource}}" "test" {
+  {{#bodyParam.requiredVars}}
+  {{baseName}} = %q
+  {{/bodyParam.requiredVars}}
+  tags = {
+	tag1 = %q
+  }
+}
+
+data "bloxone_{{vendorExtensions.x-tf-datasource}}" "test" {
+  tag_filters = {
+	tag1 = bloxone_{{vendorExtensions.x-tf-resource}}.test.tags.tag1
+  }
+}
+`{{#bodyParam.requiredVars}},{{nameInCamelCase}}{{/bodyParam.requiredVars}},tagValue)
+}
+{{/vendorExtensions.x-tf-datasource}}{{/operation}}{{/operations}}

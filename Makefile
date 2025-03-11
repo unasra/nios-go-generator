@@ -1,6 +1,8 @@
 NIOS_GO_CLIENT_REPO  	?= ../../unasra/nios-go-client/
 CSP_HOST	                 = csp.infoblox.com
 SKIP_SCHEMA_VALIDATION		?= false
+TERRAFORM_PROVIDER_REPO 	?= ../../unasra/terraform-provider-nios
+
 
 # Docker image name and Dockerfile path
 DOCKER_IMAGE_NAME ?= nios-openapi-generator
@@ -40,7 +42,7 @@ default: go-client
 		java -cp "/opt/bloxone/nios-openapi-generator-1.0.0.jar:/opt/openapi-generator/modules/openapi-generator-cli/target/openapi-generator-cli.jar" org.openapitools.codegen.OpenAPIGenerator \
 		generate -g nios-go-client\
 		-i $< \
-		-o /out/${WAPI_VERSION}/$(subst -,,$*) \
+		-o /out/$(subst -,,$*) \
 		-c ${CONFIG_DIR}/go-client/generated/$*.yaml \
 		--global-property apis,models,supportingFiles=README.md:openapi.yaml:.openapi-generator-ignore:client.go:utils.go \
 		--git-user-id unasra \
@@ -79,4 +81,29 @@ default: go-client
 docker-build:
 	docker build -t $(DOCKER_IMAGE_NAME) -f $(DOCKERFILE_PATH) .
 
+#----------------- Terraform provider generation ----------------- #
 
+.PHONY: %-terraform
+%-terraform: .final-schemas/${WAPI_VERSION}/%.json docker-build
+	mkdir -p ${TERRAFORM_PROVIDER_REPO}/internal/service/$(subst -,,$*)
+	-cp -n ${CONFIG_DIR}/terraform/.openapi-generator-ignore ${TERRAFORM_PROVIDER_REPO}/internal/service/$(subst -,,$*)/.openapi-generator-ignore
+	@docker run --rm -v "$(realpath ${TERRAFORM_PROVIDER_REPO}):/out" -v "$(shell pwd):/gen"  -w /gen \
+	-e GO_POST_PROCESS_FILE="/gen/${CONFIG_DIR}/terraform/go-post-process.sh" \
+	${DOCKER_IMAGE_NAME} \
+		java -cp "/opt/bloxone/nios-openapi-generator-1.0.0.jar:/opt/openapi-generator/modules/openapi-generator-cli/target/openapi-generator-cli.jar" org.openapitools.codegen.OpenAPIGenerator \
+		generate -g terraform-provider-nios \
+		-i $< \
+		--enable-post-process-file \
+		-o /out/internal/service/$(subst -,,$*) \
+		-c ${CONFIG_DIR}/terraform/config.yaml \
+		--git-user-id unasra \
+		--git-repo-id terraform-provider-nios \
+		--global-property models,modelTests=false,modelDocs=false,apis,apiDocs=false \
+		--additional-properties=packageName=$(subst -,,$*) \
+		--additional-properties=clientAPI=$($*-api) \
+		--additional-properties=modelPrefixToRemove=$($*-model-prefix) \
+		$(if $(filter true,${SKIP_SCHEMA_VALIDATION}),--skip-validate-spec)
+
+.PHONY: terraform
+terraform:
+	$(foreach service,$(SERVICES),$(MAKE) $(service)-terraform;)

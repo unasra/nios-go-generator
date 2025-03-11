@@ -6420,7 +6420,9 @@
           {
             "basicAuth": []
           }
-        ]
+        ],
+        "x-tf-resource": "dns_a_record",
+        "x-tf-datasource": "dns_a_records"
       }
     },
     "/wapi/v2.12/record:a/{record:a_reference}": {

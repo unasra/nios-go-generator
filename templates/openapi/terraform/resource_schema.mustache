@@ -1,0 +1,6 @@
+func (r *{{baseName}}Resource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{
+        MarkdownDescription: "{{{description}}}",
+        Attributes: {{bodyParam.dataType}}ResourceSchemaAttributes,
+    }
+}
