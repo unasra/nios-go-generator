@@ -1,0 +1,647 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "IbClient",
+      "description": "OpenAPI 3.x.x specification for the IbClient API",
+      "version": "3.0.0",
+      "termsOfService": "https://www.infoblox.com",
+      "contact": {
+        "name": "Infoblox",
+        "url": "https://www.infoblox.com",
+        "email": "jkhatri@infoblox.com"
+      },
+      "license": {
+        "name": "Apache 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+      }
+    },
+    "servers": [
+      {
+        "url": "https://{nios_host}/wapi/v2.12.3",
+        "description": "Development server",
+        "variables": {
+          "nios_host": {
+            "default": "172.28.83.87",
+            "enum": [
+              "172.28.83.87"
+            ],
+            "description": "Infoblox NIOS server IP address"
+          }
+        }
+      }
+    ],
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "tags": [
+      {
+        "name": "recordA",
+        "description": "Operations about ** record:a ** objects"
+      }
+    ],
+    "paths": {
+      "/record:a": {
+        "get": {
+          "tags": [
+            "record:a"
+          ],
+          "parameters": [
+            {
+              "$ref": "common.json#/components/parameters/ReturnFields"
+            },
+            {
+              "$ref": "common.json#/components/parameters/ReturnFieldsPlus"
+            },
+            {
+              "$ref": "common.json#/components/parameters/MaxResults"
+            },
+            {
+              "$ref": "common.json#/components/parameters/ReturnAsObject"
+            },
+            {
+              "$ref": "common.json#/components/parameters/Paging"
+            },
+            {
+              "$ref": "common.json#/components/parameters/PageId"
+            },
+            {
+              "$ref": "common.json#/components/parameters/ProxySearch"
+            },
+            {
+              "$ref": "common.json#/components/parameters/Schema"
+            },
+            {
+              "$ref": "common.json#/components/parameters/SchemaVersion"
+            },
+            {
+              "$ref": "common.json#/components/parameters/GetDoc"
+            },
+            {
+              "$ref": "common.json#/components/parameters/SchemaSearchable"
+            },
+            {
+              "$ref": "common.json#/components/parameters/Inheritance"
+            },
+            {
+              "name": "comment",
+              "in": "query",
+              "description": "Enter the value of the field",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+
+              "name": "creator",
+              "in": "query",
+              "description": "Enter the value of the field",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+
+              "name": "ddns_principal",
+              "in": "query",
+              "description": "Enter the value of the field",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+          },
+          {
+              "name": "ipv4addr",
+              "in": "query",
+              "description": "Enter the value of the field",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+          {
+              "name": "name",
+              "in": "query",
+              "description": "Enter the value of the field",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+          },
+          {
+
+              "name": "reclaimable",
+              "in": "query",
+              "description": "Enter the value of the field",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+          },
+          {
+              "name": "view",
+              "in": "query",
+              "description": "Enter the value of the field",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+          },
+          {
+              "name": "zone",
+              "in": "query",
+              "description": "Enter the value of the field",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+          }   
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                    "schema": {
+                        "$ref": "schemas.json#/components/schemas/ListRecordAResponse"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "basicAuth": []
+            }
+          ]
+        },
+        "post": {
+          "tags": [
+            "record:a"
+          ],
+          "parameters": [
+            {
+              "$ref": "common.json#/components/parameters/ReturnFields"
+            }
+          ],
+          "requestBody": {
+            "description": "Enter the request body here",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas.json#/components/schemas/RecordARequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string",
+                        "description": "Reference of the created A record"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "basicAuth": []
+            }
+          ]
+        }
+      },
+      "/record:a/{record:a_reference}": {
+        "get": {
+          "tags": [
+            "record:a"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/recordAReference"
+            },
+            {
+              "$ref": "common.json#/components/parameters/ReturnFields"
+            },
+            {
+              "$ref": "common.json#/components/parameters/ReturnFieldsPlus"
+            },
+            {
+              "$ref": "common.json#/components/parameters/ReturnAsObject"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "schemas.json#/components/schemas/RecordA"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "basicAuth": []
+            }
+          ]
+        },
+        "put": {
+          "description": "Update the record:a resource",
+          "tags": [
+            "record:a"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/recordAReference"
+            },
+            {
+              "$ref": "common.json#/components/parameters/ReturnFields"
+            }
+          ],
+          "requestBody": {
+            "description": "Enter the request body here",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas.json#/components/schemas/RecordARequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string",
+                        "description": "Reference of the created A record"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "basicAuth": []
+            }
+          ]
+        },
+        "delete": {
+          "description": "Delete the record:a resource",
+          "tags": [
+            "record:a"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/recordAReference"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string",
+                        "description": "Reference of the created A record"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "basicAuth": []
+            }
+          ]
+        }
+      },
+      "/record:aaaa":{
+        "get":{
+          "tags": [
+            "record:aaaa"
+          ],
+          "parameters": [
+            {
+              "$ref": "common.json#/components/parameters/ReturnFields"
+            },
+            {
+              "$ref": "common.json#/components/parameters/ReturnFieldsPlus"
+            },
+            {
+              "$ref": "common.json#/components/parameters/MaxResults"
+            },
+            {
+              "$ref": "common.json#/components/parameters/ReturnAsObject"
+            },
+            {
+              "$ref": "common.json#/components/parameters/Paging"
+            },
+            {
+              "$ref": "common.json#/components/parameters/PageId"
+            },
+            {
+              "$ref": "common.json#/components/parameters/ProxySearch"
+            },
+            {
+              "$ref": "common.json#/components/parameters/Schema"
+            },
+            {
+              "$ref": "common.json#/components/parameters/SchemaVersion"
+            },
+            {
+              "$ref": "common.json#/components/parameters/GetDoc"
+            },
+            {
+              "$ref": "common.json#/components/parameters/SchemaSearchable"
+            },
+            {
+              "$ref": "common.json#/components/parameters/Inheritance"
+            },
+            {
+              "name": "comment",
+              "in": "query",
+              "description": "Enter the value of the field",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+
+              "name": "creator",
+              "in": "query",
+              "description": "Enter the value of the field",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+
+              "name": "ddns_principal",
+              "in": "query",
+              "description": "Enter the value of the field",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+          },
+          {
+              "name": "ipv4addr",
+              "in": "query",
+              "description": "Enter the value of the field",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+          {
+              "name": "name",
+              "in": "query",
+              "description": "Enter the value of the field",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+          },
+          {
+              "name": "reclaimable",
+              "in": "query",
+              "description": "Enter the value of the field",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+          },
+          {
+              "name": "view",
+              "in": "query",
+              "description": "Enter the value of the field",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+          },
+          {
+              "name": "zone",
+              "in": "query",
+              "description": "Enter the value of the field",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+          }   
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                    "schema": {
+                        "$ref": "schemas.json#/components/schemas/ListRecordAAAAResponse"
+                      }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "basicAuth": []
+            }
+          ]
+        },
+        "post": {
+          "tags": [
+            "record:aaaa"
+          ],
+          "parameters": [
+            {
+              "$ref": "common.json#/components/parameters/ReturnFields"
+            }
+          ],
+          "requestBody": {
+            "description": "Enter the request body here",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas.json#/components/schemas/RecordAAAARequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string",
+                        "description": "Reference of the created A record"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "basicAuth": []
+            }
+          ]
+        }
+      },
+      "/record:aaaa/{record:aaaa_reference}": {
+        "get": {
+          "tags": [
+            "record:aaaa"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/recordAAAAReference"
+            },
+            {
+              "$ref": "common.json#/components/parameters/ReturnFields"
+            },
+            {
+              "$ref": "common.json#/components/parameters/ReturnFieldsPlus"
+            },
+            {
+              "$ref": "common.json#/components/parameters/ReturnAsObject"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "schemas.json#/components/schemas/RecordAAAA"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "basicAuth": []
+            }
+          ]
+        },
+        "put": {
+          "description": "Update the record:aaaa resource",
+          "tags": [
+            "record:aaaa"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/recordAAAAReference"
+            },
+            {
+              "$ref": "common.json#/components/parameters/ReturnFields"
+            }
+          ],
+          "requestBody": {
+            "description": "Enter the request body here",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "schemas.json#/components/schemas/RecordAAAARequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string",
+                        "description": "Reference of the created A record"
+                  }
+                }
+              }
+          }
+        },
+          "security": [
+            {
+              "basicAuth": []
+            }
+          ]
+        },
+        "delete": {
+          "description": "Delete the record:aaaa resource",
+          "tags": [
+            "record:aaaa"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/recordAAAAReference"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string",
+                        "description": "Reference of the created A record"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "basicAuth": []
+            }
+          ]
+        }
+      }
+    },
+    "components": {
+      "securitySchemes": {
+        "basicAuth": {
+          "type": "http",
+          "scheme": "basic"
+        }
+      },
+      "parameters": {
+        "recordAReference": {
+          "name": "record:a_reference",
+          "in": "path",
+          "required": true,
+          "description": "Enter the reference for record:a",
+          "schema": {
+            "type": "string",
+            "example": "resourceID:resourceName"
+          }
+        },
+        "recordAAAAReference":{
+          "name": "record:aaaa_reference",
+          "in": "path",
+          "required": true,
+          "description": "Enter the reference for record:aaaa",
+          "schema": {
+            "type": "string",
+            "example": "resourceID:resourceName"
+          }
+        }
+      }
+    }
+}

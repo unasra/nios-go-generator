@@ -1,0 +1,125 @@
+{
+    "components" : {
+    "parameters": {
+      "ReturnFields": {
+        "name": "_return_fields",
+        "in": "query",
+        "description": "Enter the field names followed by comma",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "ReturnFieldsPlus": {
+        "name": "_return_fields+",
+        "in": "query",
+        "description": "Enter the field names followed by comma, this returns the required fields along with the default fields",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "MaxResults": {
+        "name": "_max_results",
+        "in": "query",
+        "description": "Enter the number of results to be fetched",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "ReturnAsObject": {
+        "name": "_return_as_object",
+        "in": "query",
+        "description": "Select 1 if result is required as an object",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "enum": [
+            0,
+            1
+          ],
+          "default": 0
+        }
+      },
+      "Paging": {
+        "name": "_paging",
+        "in": "query",
+        "description": "Select 1 if paging is required. If SET, _max_results and _return_as_object must be entered.",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "enum": [
+            0,
+            1
+          ],
+          "default": 0
+        }
+      },
+      "PageId": {
+        "name": "_page_id",
+        "in": "query",
+        "description": "Enter the page ID for fetching the next page",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "ProxySearch": {
+        "name": "_proxy_search",
+        "in": "query",
+        "description": "If set to GM, the request is redirected to Grid master for processing. If set to LOCAL, the request is processed locally. This option is applicable only on vConnector grid members. The default is LOCAL.",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "Schema": {
+        "name": "_schema",
+        "in": "query", 
+        "description": "If this option is specified, a WAPI schema will be returned",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "SchemaVersion": {
+        "name": "_schema_version",
+        "in": "query",
+        "description": "If this option is specified, a WAPI schema of particular version will be returned. If options is omitted, schema version is assumed to be 1",
+        "required": false,
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "GetDoc": {
+        "name": "_get_doc",
+        "in": "query",
+        "description": "When set to 1, it returns the documentation of the object.Applicable only when _schema_version is 2",
+        "required": false,
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "SchemaSearchable": {
+        "name": "_schema_searchable",
+        "in": "query",
+        "description": "If this option is specified, search only fields will also be returned. Applicable only when _schema_version is 2",
+        "required": false,
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "Inheritance": {
+        "name": "_inheritance",
+        "in": "query",
+        "description": "If this option is set to True, fields which support inheritance, will display data properly.",
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

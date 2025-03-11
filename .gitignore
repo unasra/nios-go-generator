@@ -18,3 +18,4 @@ pyvenv.cfg
 .openapi-generator
 
 /generated/
+.DS_Store

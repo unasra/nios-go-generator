@@ -1,0 +1,382 @@
+{
+    "components": {
+        "schemas": {
+            "RecordA": {
+                "type": "object",
+                "properties": {
+                    "_ref":{
+                        "type": "string",
+                        "description": "The reference to the object."
+                    },
+                    "aws_rte53_record_info": {
+                        "type": "string",
+                        "enum": [
+                            "awsrte53recordinfo"
+                        ],
+                        "description": "Aws Route 53 record information."
+                    },
+                    "cloud_info": {
+                        "type": "string",
+                        "enum": [
+                            "grid:cloudapi:info"
+                        ],
+                        "description": "Structure containing all cloud API related information for this object."
+                    },
+                    "comment": {
+                        "type": "string",
+                        "description": "Comment for the record; maximum 256 characters."
+                    },
+                    "creation_time": {
+                        "type": "string",
+                        "enum": [
+                            "timestamp"
+                        ],
+                        "description": "The time of the record creation in Epoch seconds format."
+                    },
+                    "creator": {
+                        "type": "string",
+                        "enum": [
+                            "STATIC",
+                            "DYNAMIC",
+                            "SYSTEM"
+                        ],
+                        "description": "The record creator."
+                    },
+                    "ddns_principal": {
+                        "type": "string",
+                        "description": "The GSS-TSIG principal that owns this record."
+                    },
+                    "ddns_protected": {
+                        "type": "boolean",
+                        "description": "Determines if the DDNS updates for this record are allowed or not."
+                    },
+                    "disable": {
+                        "type": "boolean",
+                        "description": "Determines if the record is disabled or not. False means that the record is enabled."
+                    },
+                    "discovered_data": {
+                        "type": "string",
+                        "enum": [
+                            "discoverydata"
+                        ],
+                        "description": "The discovered data for this A record."
+                    },
+                    "dns_name": {
+                        "type": "string",
+                        "description": "The name for an A record in punycode format."
+                    },
+                    "extattrs": {
+                        "type": "string",
+                        "enum": [
+                            "extattr"
+                        ],
+                        "description": "Extensible attributes associated with the object."
+                    },
+                    "forbid_reclamation": {
+                        "type": "boolean",
+                        "description": "Determines if the reclamation is allowed for the record or not."
+                    },
+                    "ipv4addr": {
+                        "type": "string",
+                        "description": "The IPv4 Address of the record."
+                    },
+                    "last_queried": {
+                        "type": "string",
+                        "enum": [
+                            "timestamp"
+                        ],
+                        "description": "The time of the last DNS query in Epoch seconds format."
+                    },
+                    "ms_ad_user_data": {
+                        "type": "string",
+                        "enum": [
+                            "msserver:aduser:data"
+                        ],
+                        "description": "The Microsoft Active Directory user related information."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Name for A record in FQDN format."
+                    },
+                    "reclaimable": {
+                        "type": "boolean",
+                        "description": "Determines if the record is reclaimable or not."
+                    },
+                    "remove_associated_ptr": {
+                        "type": "boolean",
+                        "description": "Whether to remove associated PTR records while deleting the A record."
+                    },
+                    "shared_record_group": {
+                        "type": "string",
+                        "description": "The shared record group this record belongs to."
+                    },
+                    "ttl": {
+                        "type": "integer",
+                        "description": "Time-to-live value of the record, in seconds."
+                    },
+                    "use_ttl": {
+                        "type": "boolean",
+                        "description": "Flag to indicate whether the TTL value should be used for the A record."
+                    },
+                    "view": {
+                        "type": "string",
+                        "description": "View that this record is part of."
+                    },
+                    "zone": {
+                        "type": "string",
+                        "description": "The zone in which the record resides."
+                    }
+                }
+            },
+            "RecordARequest": {
+                "type": "object",
+                "properties": {
+                    "comment": {
+                        "type": "string"
+                    },
+                    "creator": {
+                        "type": "string",
+                        "enum": [
+                            "STATIC",
+                            "DYNAMIC",
+                            "SYSTEM"
+                        ]
+                    },
+                    "ddns_principal": {
+                        "type": "string"
+                    },
+                    "ddns_protected": {
+                        "type": "boolean"
+                    },
+                    "disable": {
+                        "type": "boolean"
+                    },
+                    "extattrs": {
+                        "type": "string"
+                    },
+                    "forbid_reclamation": {
+                        "type": "boolean"
+                    },
+                    "ipv4addr": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "ttl": {
+                        "type": "integer"
+                    },
+                    "use_ttl": {
+                        "type": "boolean"
+                    },
+                    "view": {
+                        "type": "string"
+                    }
+                }
+            },
+            "RecordAAAA": {
+                "type": "object",
+                "properties": {
+                    "_ref":{
+                        "type": "string",
+                        "description": "The reference to the object."
+                    },
+                    "aws_rte53_record_info": {
+                        "type": "string",
+                        "enum": [
+                            "awsrte53recordinfo"
+                        ],
+                        "description": "Aws Route 53 record information."
+                    },
+                    "cloud_info": {
+                        "type": "string",
+                        "enum": [
+                            "grid:cloudapi:info"
+                        ],
+                        "description": "Structure containing all cloud API related information for this object."
+                    },
+                    "comment": {
+                        "type": "string",
+                        "description": "Comment for the record; maximum 256 characters."
+                    },
+                    "creation_time": {
+                        "type": "string",
+                        "enum": [
+                            "timestamp"
+                        ],
+                        "description": "The time of the record creation in Epoch seconds format."
+                    },
+                    "creator": {
+                        "type": "string",
+                        "enum": [
+                            "STATIC",
+                            "DYNAMIC",
+                            "SYSTEM"
+                        ],
+                        "description": "The record creator. Note that changing creator from or to 'SYSTEM' value is not allowed."
+                    },
+                    "ddns_principal": {
+                        "type": "string",
+                        "description": "The GSS-TSIG principal that owns this record."
+                    },
+                    "ddns_protected": {
+                        "type": "boolean",
+                        "example": "boolean",
+                        "description": "Determines if the DDNS updates for this record are allowed or not."
+                    },
+                    "disable": {
+                        "type": "boolean",
+                        "example": "boolean",
+                        "description": "Determines if the record is disabled or not. False means that the record is enabled."
+                    },
+                    "discovered_data": {
+                        "type": "string",
+                        "enum": [
+                            "discoverydata"
+                        ],
+                        "description": "The discovered data for this AAAA record."
+                    },
+                    "dns_name": {
+                        "type": "string",
+                        "description": "The name for an AAAA record in punycode format."
+                    },
+                    "extattrs": {
+                        "type": "string",
+                        "enum": [
+                            "extattr"
+                        ],
+                        "description": "Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}."
+                    },
+                    "forbid_reclamation": {
+                        "type": "boolean",
+                        "example": "boolean",
+                        "description": "Determines if the reclamation is allowed for the record or not."
+                    },
+                    "ipv6addr": {
+                        "type": "string",
+                        "description": "The IPv6 Address of the record."
+                    },
+                    "last_queried": {
+                        "type": "string",
+                        "enum": [
+                            "timestamp"
+                        ],
+                        "description": "The time of the last DNS query in Epoch seconds format."
+                    },
+                    "ms_ad_user_data": {
+                        "type": "string",
+                        "enum": [
+                            "msserver:aduser:data"
+                        ],
+                        "description": "The Microsoft Active Directory user related information."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Name for the AAAA record in FQDN format. This value can be in unicode format."
+                    },
+                    "reclaimable": {
+                        "type": "boolean",
+                        "example": "boolean",
+                        "description": "Determines if the record is reclaimable or not."
+                    },
+                    "remove_associated_ptr": {
+                        "type": "boolean",
+                        "example": "boolean",
+                        "description": "Delete option that indicates whether the associated PTR records should be removed while deleting the specified A record."
+                    },
+                    "shared_record_group": {
+                        "type": "string",
+                        "description": "The name of the shared record group in which the record resides. This field exists only on db_objects if this record is a shared record."
+                    },
+                    "ttl": {
+                        "type": "integer",
+                        "example": "integer",
+                        "description": "The Time To Live (TTL) value for the record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached."
+                    },
+                    "use_ttl": {
+                        "type": "boolean",
+                        "example": "boolean",
+                        "description": "Use flag for: ttl"
+                    },
+                    "view": {
+                        "type": "string",
+                        "description": "The name of the DNS view in which the record resides. Example: external."
+                    },
+                    "zone": {
+                        "type": "string",
+                        "description": "The name of the zone in which the record resides. Example: zone.com. If a view is not specified when searching by zone, the default view is used."
+                    }
+                }
+            },
+            "RecordAAAARequest": {
+                "type": "object",
+                "properties": {
+                    "comment": {
+                        "type": "string",
+                        "example": "string"
+                    },
+                    "creator": {
+                        "type": "string",
+                        "example": "['STATIC', 'DYNAMIC', 'SYSTEM']"
+                    },
+                    "ddns_principal": {
+                        "type": "string",
+                        "example": "string"
+                    },
+                    "ddns_protected": {
+                        "type": "string",
+                        "example": "bool"
+                    },
+                    "disable": {
+                        "type": "string",
+                        "example": "bool"
+                    },
+                    "extattrs": {
+                        "type": "string",
+                        "example": "extattr"
+                    },
+                    "forbid_reclamation": {
+                        "type": "string",
+                        "example": "bool"
+                    },
+                    "ipv6addr": {
+                        "type": "string",
+                        "example": "string"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "string"
+                    },
+                    "ttl": {
+                        "type": "string",
+                        "example": "uint"
+                    },
+                    "use_ttl": {
+                        "type": "string",
+                        "example": "bool"
+                    },
+                    "view": {
+                        "type": "string",
+                        "example": "string"
+                    }
+                }
+            },
+            "ListRecordAAAAResponse": {
+                "description": "The response format to retrieve __AAAARecord__ objects.",
+                "type": "array",
+                "title": "ListAAAARecordResponse",
+                "items":{
+                "$ref": "#/components/schemas/RecordAAAA"
+                }
+            },
+            "ListRecordAResponse": {
+                "description": "The response format to retrieve __ARecord__ objects.",
+                "type": "array",
+                "title": "ListARecordResponse",
+                "items":{
+                "$ref": "#/components/schemas/RecordA"
+                }
+            }
+        }
+    }
+}
